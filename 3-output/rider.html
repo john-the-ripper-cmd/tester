@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Registration</title>
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+</head>
+<body>
+    <div class="form-container">
+        <h2>Register as a Rider</h2>
+        <form id="riderForm">
+            <label>Name:</label>
+            <input type="text" id="name" required>
+            
+            <label>Gender:</label>
+            <select id="gender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+            
+            <label>Car Model:</label>
+            <input type="text" id="car" required>
+            
+            <label>From:</label>
+            <input type="text" id="from" required>
+            
+            <label>To:</label>
+            <input type="text" id="to" required>
+            
+            <label>Time:</label>
+            <input type="text" id="time" required>
+            
+            <button type="submit">Register</button>
+        </form>
+    </div>
+    
+    <script type="module" src="rider.js">
+          </script>
+</body>
+</html>

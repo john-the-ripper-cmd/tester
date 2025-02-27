@@ -4,38 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rider Registration</title>
-    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <style>
+        .dropdown-container {
+            position: relative;
+            width: 100%;
+        }
+        .dropdown-input {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .dropdown-list {
+            position: absolute;
+            width: 100%;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            background-color: white;
+            display: none;
+        }
+        .dropdown-list div {
+            padding: 8px;
+            cursor: pointer;
+        }
+        .dropdown-list div:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
 </head>
 <body>
     <div class="form-container">
         <h2>Register as a Rider</h2>
         <form id="riderForm">
-            <label>Name:</label>
-            <input type="text" id="name" required>
-            
-            <label>Gender:</label>
+            <input type="text" id="name" placeholder="Enter your name" required />
             <select id="gender" required>
+                <option value="">Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
             </select>
             
-            <label>Car Model:</label>
-            <input type="text" id="car" required>
-            
-            <label>From:</label>
-            <input type="text" id="from" required>
-            
-            <label>To:</label>
-            <input type="text" id="to" required>
-            
-            <label>Time:</label>
-            <input type="text" id="time" required>
+            <!-- Searchable dropdown for car model -->
+            <input type="text" id="carSearch" placeholder="Search car model..." required />
+            <div id="carDropdown" class="dropdown-list"></div>
+        
+            <!-- "Add New Car" button (Hidden initially) -->
+            <button type="button" id="addCarBtn" style="display: none;">Add New Car</button>
+        
+            <!-- Hidden fields for car make & mileage (shown after button click) -->
+            <div id="newCarFields" style="display: none;">
+                <input type="text" id="carMake" placeholder="Enter car make (brand)" />
+                <input type="number" id="carMileage" placeholder="Enter mileage (km/l)" />
+            </div>
+        
+            <input type="text" id="from" placeholder="From" required />
+            <input type="text" id="to" placeholder="To" required />
+            <input type="time" id="time" required />
             
             <button type="submit">Register</button>
         </form>
+        
     </div>
     
-    <script type="module" src="rider.js">
-          </script>
+    <script type="module" src="rider.js"></script>
 </body>
 </html>

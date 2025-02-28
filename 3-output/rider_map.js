@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-import { getDatabase, ref, push, get, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+import { getDatabase, ref, get, push, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -17,6 +17,46 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
+// OpenRouteService API Key
+const ORS_API_KEY = "5b3ce3597851110001cf62486ece71d78e9541678f8539aafd9d3697";
+
+// Function to Fetch Location Suggestions
+async function fetchLocationSuggestions(query, elementId) {
+    if (query.length < 3) return; // Avoid unnecessary API calls
+
+    const response = await fetch(
+        `https://api.openrouteservice.org/geocode/search?api_key=${ORS_API_KEY}&text=${query}&size=5`
+    );
+    const data = await response.json();
+
+    const suggestionsList = document.getElementById(elementId);
+    suggestionsList.innerHTML = ""; // Clear previous suggestions
+
+    if (data.features) {
+        data.features.forEach(place => {
+            const li = document.createElement("li");
+            li.textContent = place.properties.label;
+            li.onclick = () => {
+                document.getElementById(elementId.replace("Suggestions", "")).value = place.properties.label;
+                suggestionsList.innerHTML = ""; // Clear suggestions after selection
+                
+                // ✅ Store coordinates in hidden fields
+                document.getElementById(elementId.replace("Suggestions", "") + "Lat").value = place.geometry.coordinates[1]; // Latitude
+                document.getElementById(elementId.replace("Suggestions", "") + "Lon").value = place.geometry.coordinates[0]; // Longitude
+            };
+            suggestionsList.appendChild(li);
+        });
+    }
+}
+
+// Event Listeners for fetching location suggestions
+document.getElementById("from").addEventListener("input", (e) => {
+    fetchLocationSuggestions(e.target.value, "fromSuggestions");
+});
+document.getElementById("to").addEventListener("input", (e) => {
+    fetchLocationSuggestions(e.target.value, "toSuggestions");
+});
+
 // DOM Elements
 const carSearchInput = document.getElementById("carSearch");
 const carDropdown = document.getElementById("carDropdown");
@@ -27,7 +67,7 @@ const carMileageInput = document.getElementById("carMileage");
 
 let carList = []; // Store fetched car models
 
-// Function to fetch and store car models
+// Function to Fetch Car Models from Firebase
 function loadCarDropdown() {
     const carsRef = ref(database, "cars");
 
@@ -42,7 +82,7 @@ function loadCarDropdown() {
     });
 }
 
-// Function to filter and show the dropdown
+// Function to Filter and Show Car Dropdown
 function filterCars() {
     const searchValue = carSearchInput.value.toLowerCase();
     carDropdown.innerHTML = "";
@@ -72,7 +112,7 @@ function filterCars() {
     carDropdown.style.display = "block";
 }
 
-// Event listeners
+// Event Listeners
 carSearchInput.addEventListener("input", filterCars);
 carSearchInput.addEventListener("focus", filterCars);
 addCarBtn.addEventListener("click", () => {
@@ -87,19 +127,28 @@ document.addEventListener("click", (event) => {
 // Load car data when page loads
 window.onload = loadCarDropdown;
 
+// Handle Rider Form Submission
 document.getElementById("riderForm").addEventListener("submit", function(event) {
     event.preventDefault();
 
     let selectedModel = carSearchInput.value.replace(/\s+/g, "+"); // Convert spaces to '+'
     let carMake = carMakeInput.value.replace(/\s+/g, "+");
     let mileage = carMileageInput.value;
-
+    
     const rider = {
         name: document.getElementById("name").value,
         gender: document.getElementById("gender").value,
         car: selectedModel,
-        from: document.getElementById("from").value,
-        to: document.getElementById("to").value,
+        from: {
+            name: document.getElementById("from").value,
+            latitude: parseFloat(document.getElementById("fromLat").value),
+            longitude: parseFloat(document.getElementById("fromLon").value)
+        },
+        to: {
+            name: document.getElementById("to").value,
+            latitude: parseFloat(document.getElementById("toLat").value),
+            longitude: parseFloat(document.getElementById("toLon").value)
+        },
         time: document.getElementById("time").value,
         peopleCount: 0
     };
@@ -130,19 +179,14 @@ document.getElementById("riderForm").addEventListener("submit", function(event) 
             // 🔥 Add new car to Firebase
             const newCarKey = `${carMake}+${selectedModel}`;
             set(ref(database, "cars/" + newCarKey), { avg: mileage }).then(() => {
-                alert("✅ New car added! Now registering rider...");
-                
-                // Update rider car model with full make+model
-                rider.car = newCarKey;
-
-                // 🔥 Register the rider
-                push(ref(database, "users"), rider).then(() => {
-                    alert("✅ Rider registered successfully!");
-                    document.getElementById("riderForm").reset();
-                    loadCarDropdown();
-                });
+                rider.car = newCarKey; // Update rider's car model
+                return push(ref(database, "users"), rider);
+            }).then(() => {
+                alert("✅ Rider registered successfully!");
+                document.getElementById("riderForm").reset();
+                loadCarDropdown();
             }).catch(error => {
-                alert("❌ Error saving car data: " + error.message);
+                alert("❌ Error: " + error.message);
             });
         }
     }).catch(error => {

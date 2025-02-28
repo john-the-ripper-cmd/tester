@@ -31,6 +31,11 @@
         .dropdown-list div:hover {
             background-color: #f1f1f1;
         }
+        ul.suggestions { list-style: none; padding: 0; max-width: 300px; background: #fff; border: 1px solid #ccc; position: absolute; z-index: 1000; }
+        ul.suggestions li { padding: 8px; cursor: pointer; }
+        ul.suggestions li:hover { background: #f0f0f0; }
+        input { width: 300px; padding: 8px; margin: 5px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -56,9 +61,18 @@
                 <input type="text" id="carMake" placeholder="Enter car make (brand)" />
                 <input type="number" id="carMileage" placeholder="Enter mileage (km/l)" />
             </div>
-        
-            <input type="text" id="from" placeholder="From" required />
-            <input type="text" id="to" placeholder="To" required />
+            <div id="searchSection">
+                <input type="hidden" id="fromLat">
+                <input type="hidden" id="fromLon">
+                <input type="hidden" id="toLat">
+                <input type="hidden" id="toLon">
+
+                <input type="text" id="from" placeholder="Enter pickup location">
+                <ul id="fromSuggestions" class="suggestions"></ul>
+            
+                <input type="text" id="to" placeholder="Enter destination">
+                <ul id="toSuggestions" class="suggestions"></ul>
+            </div>
             <input type="time" id="time" required />
             
             <button type="submit">Register</button>
@@ -66,6 +80,6 @@
         
     </div>
     
-    <script type="module" src="rider.js"></script>
+    <script type="module" src="rider_map.js"></script>
 </body>
 </html>
